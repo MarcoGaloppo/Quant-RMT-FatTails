@@ -105,7 +105,7 @@ under Gaussian returns and under elliptical t(3) returns.
     pip install -r requirements.txt
     jupyter lab narrative_rmt_simulations.ipynb
 
-Everything is seeded; the notebook runs top-to-bottom in a couple of minutes.
+Everything is seeded; the notebook runs top-to-bottom in a few minutes (last cell as bottleneck).
 `rmt_lab.py` needs only numpy.
 
 ## References

@@ -1,6 +1,6 @@
 # Eigenvalues in the wild — a random-matrix laboratory
 
-Let us start frome the basic. If I have not misunderstood a lot: essentially every portfolio decision 
+Let us start frome the basics. If I have not misunderstood a lot: essentially every portfolio decision 
 eventually runs through a covariance matrix. However, every covariance matrix gets estimated from 
 too little data. **Numquam gaudium** as those wise latins would say. Indeed, with `N`assets and `T`
 observations the natural parameter is

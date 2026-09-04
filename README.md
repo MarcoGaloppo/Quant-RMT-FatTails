@@ -1,4 +1,4 @@
-# Eigenvalues in the wild — a random-matrix laboratory
+# Eigenvalues in the wild — a random-matrix laboratory which eventually meets the market
 
 Let us start frome the basics. If I have not misunderstood a lot: essentially every portfolio decision 
 eventually runs through a covariance matrix. However, every covariance matrix gets estimated from 

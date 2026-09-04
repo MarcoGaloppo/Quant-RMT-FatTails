@@ -7,5 +7,6 @@ matplotlib>=3.7
 jinja2>=3.1.2          # pandas Styler backend for the tables
 jupyter>=1.0
 
-# Required once narrative_rmt_market_data.ipynb goes live (Part 0 onwards).
-# yfinance>=0.2
+# Required to run narrative_rmt_market_data.ipynb.
+yfinance>=0.2
+pyarrow>=14

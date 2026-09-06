@@ -10,3 +10,6 @@ jupyter>=1.0
 # Required to run narrative_rmt_market_data.ipynb.
 yfinance>=0.2
 pyarrow>=14
+
+# Development only: the test suite (pytest tests/ -q).
+pytest>=7.0

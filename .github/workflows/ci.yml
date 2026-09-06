@@ -1,0 +1,35 @@
+name: tests
+
+on:
+  push:
+    branches: [main, real-data-analysis]
+  pull_request:
+  workflow_dispatch:          # lets you run it by hand from the Actions tab
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pytest          # rmt_lab itself needs only numpy
+          pip install -r requirements.txt   # and this proves the pinned stack installs
+
+      - name: Run tests
+        run: pytest tests/ -q
+
+      - name: Import check on a clean interpreter
+        run: python -c "import rmt_lab; print(len(rmt_lab.__all__), 'exports OK')"

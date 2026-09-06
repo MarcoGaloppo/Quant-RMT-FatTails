@@ -30,6 +30,10 @@ In this project we will apply RMT to finance data after looking into some simula
   We now employ S&P constituents and futures to ask a few questions. For example: does the bulk
   match Marchenko–Pastur, which outliers are real, and does the cleaning ranking established
   in simulation survive out-of-sample reality.
+- `tests/test_rmt_lab.py` — 38 checks on the module, run by CI on every push. Two kinds:
+  invariants with exact answers (normalisations, the BBP inverse round-trip, trace
+  preservation) and seeded statistical checks against the theory the module implements
+  (BBP positions and overlaps, the cleaning ordering, κ).
 
 ## Simulation notebook
 
@@ -144,6 +148,8 @@ of the spectrum, which is where the danger actually lives.
     pip install -r requirements.txt
     jupyter lab narrative_rmt_simulations.ipynb      # synthetic, seeded, a few minutes
     jupyter lab narrative_rmt_market_data.ipynb      # real data, ~30 s once cached
+
+    pytest tests/ -q                                # 38 checks, ~1.5 s
 
 The simulation notebook is fully seeded and needs no network. The market notebook downloads
 prices once via `yfinance` into `data/` (gitignored) and runs offline from the cache

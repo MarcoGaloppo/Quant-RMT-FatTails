@@ -1,5 +1,7 @@
 # Eigenvalues in the wild — a random-matrix laboratory that eventually meets the market
 
+[![tests](https://github.com/MarcoGaloppo/Quant-RMT-FatTails/actions/workflows/ci.yml/badge.svg)](https://github.com/MarcoGaloppo/Quant-RMT-FatTails/actions/workflows/ci.yml)
+
 Let us start from the basics. Essentially every portfolio decision eventually runs through a covariance matrix. However, every covariance matrix gets estimated from too little data. **Numquam gaudium** as those wise Latins would say. Indeed, with `N` assets and `T` observations the natural parameter is
 
     q = N / T,

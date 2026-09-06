@@ -13,6 +13,9 @@ Run with:  pytest -q
 import numpy as np
 import pytest
 
+# np.trapezoid is numpy>=2.0; np.trapz is the older spelling
+trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
+
 from rmt_lab import (
     sample_entries, sample_stable, wigner, goe, returns_gaussian, returns_student,
     sample_cov, sample_corr, semicircle_pdf, mp_edges, mp_pdf, stieltjes,
@@ -35,20 +38,20 @@ def rng():
 # --------------------------------------------------------------------------- #
 def test_semicircle_normalised():
     x = np.linspace(-2.5, 2.5, 20_001)
-    assert np.trapezoid(semicircle_pdf(x), x) == pytest.approx(1.0, abs=1e-3)
+    assert trapz(semicircle_pdf(x), x) == pytest.approx(1.0, abs=1e-3)
 
 
 @pytest.mark.parametrize("q", [0.1, 0.25, 0.5, 0.9])
 def test_mp_density_normalised(q):
     lo, hi = mp_edges(q)
     x = np.linspace(lo * 0.5, hi * 1.1, 40_001)
-    assert np.trapezoid(mp_pdf(x, q), x) == pytest.approx(1.0, abs=3e-3)
+    assert trapz(mp_pdf(x, q), x) == pytest.approx(1.0, abs=3e-3)
 
 
 def test_mp_density_mass_is_one_over_q_when_q_above_one():
     """For q > 1 the continuous part carries 1/q; the rest is a delta at zero."""
     x = np.linspace(1e-4, 8.0, 40_001)
-    assert np.trapezoid(mp_pdf(x, 2.0), x) == pytest.approx(0.5, abs=5e-3)
+    assert trapz(mp_pdf(x, 2.0), x) == pytest.approx(0.5, abs=5e-3)
 
 
 def test_mp_edges_symmetry_and_scaling():

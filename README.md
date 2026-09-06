@@ -1,9 +1,6 @@
-# Eigenvalues in the wild — a random-matrix laboratory
+# Eigenvalues in the wild — a random-matrix laboratory which eventually meets the market
 
-Let us start frome the basics. If I have not misunderstood a lot: essentially every portfolio decision 
-eventually runs through a covariance matrix. However, every covariance matrix gets estimated from 
-too little data. **Numquam gaudium** as those wise latins would say. Indeed, with `N`assets and `T`
-observations the natural parameter is
+Let us start frome the basics. Essentially every portfolio decision  eventually runs through a covariance matrix. However, every covariance matrix gets estimated from too little data. **Numquam gaudium** as those wise latins would say. Indeed, with `N`assets and `T` observations the natural parameter is
 
     q = N / T,
 
@@ -13,10 +10,9 @@ Mixing time periods in finance can create problems sometimes (think of how many 
 business have sprouted only in the last 10 years!)
 
 Now, it is known that the sample covariance `E = X Xᵀ / T` is the maximum-likelihood estimator (MLE),
-for the population covariance, unbiased entry by entry. Yet, its **eigenvalues are systematically,                             wrong**. In other words, not great. Thankfully, Random Matrix Theory (RMT) can helps us out.
+for the population covariance, unbiased entry by entry. Yet, its **eigenvalues are systematically, are wrong**. In other words, not great. Thankfully, Random Matrix Theory (RMT) can helps us out.
 
-In this small project we will try to apply RMT to finance data after looking into some simulations
-which will serve as guidance and exercises.
+In this project we will apply RMT to finance data after looking into some simulations which will serve as guidance and exercises.
 
 ## The set-up
 
@@ -33,7 +29,7 @@ which will serve as guidance and exercises.
 - `narrative_rmt_market_data.ipynb` —  where we follow Alice down the white rabbit's hole.
   We now employ S&P constituents and futures to ask a few questions. For example: does the bulk
   match Marchenko–Pastur, which outliers are real, and does the cleaning ranking established
-  in simulation survive out-of-sample reality. My first attempt at becoming a practitioner.
+  in simulation survive out-of-sample reality.
 
 ## Simulation notebook
 
@@ -100,15 +96,61 @@ under Gaussian returns and under elliptical t(3) returns.
    spectrum-reading methods get miscalibrated and volatility filtering restores
    them. It cannot do so under fat-tailed entries.
 
+## Market notebook
+
+**Part 0** is our data layer. We employ ~220 liquid S&P names tagged by sector. We work with log
+returns by default and net returns where money is summed across assets. We set up a per-window
+completeness rule instead of forward-filling, and, of course, **no winsorising anywhere, ever**. 
+Since tails are importante, this Part ends with a browsable tail viewer: pick a ticker, look at
+`P(|r| > x)` on log-log axes against a same-variance Gaussian and a slope −3 guide.
+
+**Part 1** is where we sample a SCM on a two-year window (`N = 216`,`T = 501`, `q = 0.43`). We then
+test the ESD against MP under using (i) the naive edge, (ii) the effective edge after removing the market mode, 
+and (iii) TW plus the LDT cost. We then run a calibration control by doing the same experiment on synthetic data with **four** planted factors. We use both Gaussian and elliptical `t(3)`, to learn how to *read* whatever count the S&P gives us.
+
+**Part 2** asks what the detected modes are made of. We produce eigenvector portraits coloured by sector, a
+sector-concentration heatmap, gauge the obtained IPR against its `3/N` null, as well as obtain the BBP overlap inverted per, and employ the the Porter–Thomas test on 2024–26 data. Then we turn to the *bottom*
+of the spectrum, which is where the danger actually lives.
+
+**Part 3** is the volatility-filtering experiment. We test raw versus day-standardised data to see which outliers survive, in case which directions survive, and overall how much common volatility there is. We also look at the tails on **raw** returns only (statistics employed here: `R₂`, `R₄`, `κ`).
+
+**Part 4** asks whether any of it persists for different time windows. We ste-up a rolling 252-day windows stepped monthly, and we look subspace overlaps rather than eigenvector overlaps. This is investigate with a lag — 12 months, namely the first with no shared days. The null is the delicate part and as such it gets four versions (Gaussian, elliptical `t(3)`, entries `t(3)`, both), with the same filter applied to both sides.
+
+**Part 5** finally scores cleaning algorithm on real market data. We use rolling out-of-sample min-variance, a total of  175 rebalances, and score sample vs clipping vs Ledoit–Wolf vs RIE vs `1/N` vs filtered RIE. These are scored on realized volatility, **honesty** (believed at formation against realized over the hold), turnover and gross exposure. Plus a `q`-sweep that tests the theory's own prediction about when cleaning should stop being meaningful.
+
+**Part 6** changes the playing field, moving to  ~30 instruments across six asset classes at `q ≈ 0.01`. We look at the  spectrum, the cross-asset blocks, the rolling equity–bond correlation, and a cleaning race in the regime where the machinery should have nothing left to do. 
+
+**Part 7** clsoing statements and what comes next...
+
+## Headline results of the market laboratory
+
+1. **Most of the spectrum is noise, but thirteen eigenvalues stand out.** At `q = 0.43`, 203
+   of 216 eigenvalue sit below the top of the MP band. Thirteen survive volatility filtering, and the
+   top six can be identified with sectros: market, defensives-vs-growth, Energy, software, banks, and managed care.
+2. **Detected ≠ estimated ≠ persistent.** BBP overlap falls from 0.99 to 0.57 across the
+   thirteen, with a twelve-month subspace persistence falls from 0.96 to 0.46 across ranks. Hence, the
+   true count of tradeable structure is **only a handful, not thirteen**.
+3. **The tails are cubic and half of them are idiosyncratic.** We have fat tails with and index of about 3. `R₄` never converges, and as such TW * and LDT   regarding the *edge* of MP does not apply. Day-standardising halves the fourth-moment concentration and no more: common volatility and single-name jumps in roughly equal measure. 
+4. **The danger is at the bottom, not the top.** 36 eigenvalues remian below the lower MP edge
+   holding 1% of the trace. Given that they are weighted by `1/λ` in every optimiser, they can be a real proble. Also, we note that these are made of business twins (DHI/LEN, MCO/SPGI, MPC/VLO). Repairing the smallest half of the spectrum removes 82% of the excess risk; the largest half only 14%.
+5. **Cleaning pays — in a regime.** Looking at the realized volatility out-of-sample we found RIE 0.121, LW 0.125, clipping 0.127, sample 0.135, and `1/N` 0.163. The advantage scales with `q`, from +42% at `q = 0.8` to +3% at `q = 0.2`, and at `q ≈ 0.04` in Part 6 it is essentially **zero** (clipping actively hurts). .
+6. **Nobody is honest, and it is not sampling noise.** Indeed, for RIE we found that the ratio believed/realized vol is 0.47–0.61 pooled, 0.77 by median, and below one in 84% of holds. Importantly, the gap does *not* close as `q → 0` the way stationary theory demands. Part 4 found the culprit in the eigenvectors: against a null calibrated to this market's own tails, real structure moves more than sampling noise permits. 
+7. **The variance ranking does not survive tail scoring.** RIE wins on volatility, LW on
+   expected shortfall, clipping on maximum drawdown . Squeezing the variance concentrates what remains into the tail. This notebook can say which estimator minimises variance; it cannot yet say which keeps you
+   solvent. That is the next project.
+
 ## Running it
 
     pip install -r requirements.txt
-    jupyter lab narrative_rmt_simulations.ipynb
+    jupyter lab narrative_rmt_simulations.ipynb      # synthetic, seeded, a few minutes
+    jupyter lab narrative_rmt_market_data.ipynb      # real data, ~30 s once cached
 
-Everything is seeded; the notebook runs top-to-bottom in a few minutes (last cell as bottleneck).
-`rmt_lab.py` needs only numpy.
+The simulation notebook is fully seeded and needs no network. The market notebook downloads
+prices once via `yfinance` into `data/` (gitignored) and runs offline from the cache
+afterwards; `pyarrow` is worth installing so the cache is parquet rather than a
+pandas-version-locked pickle. `rmt_lab.py` itself needs only numpy.
 
-## References
+## Main References
 
 - Marchenko & Pastur (1967), Mathematics of the USSR-Sbornik 1, 457 - 483 — *Distribution of eigenvalues for some sets of random  matrices*
 - Laloux, Cizeau, Bouchaud, and Potters (1999), PRL 83, 1467 — *Noise dressing of financial correlation matrices*
@@ -124,5 +166,20 @@ Everything is seeded; the notebook runs top-to-bottom in a few minutes (last cel
 - Chicheportiche & Bouchaud (2012), IJTAF 15, 1250019 — *The joint distribution of stock returns is not elliptical* 
 - Potters & Bouchaud (2020) — *A First Course in Random Matrix Theory*
 - Taleb (2025) - *Statistical Consequences of Fat Tails*
+
+Additionally used in the market notebook:
+
+- Porter & Thomas (1956), Phys. Rev. 104, 483 — *Fluctuations of nuclear reaction widths* 
+- Plerou et al. (2002), PRE 65, 066126 — *Random matrix approach to cross correlations in financial data* 
+- Pafka & Kondor (2003), Physica A 319, 487-494 — *Noisy covariance matrices and portfolio optimization II*
+- El Karoui (2010), Ann. Statist. 38, 3487-3566 — *High-dimensionality effects in the Markowitz problem and other quadratic programs with linear constraints: risk underestimation*
+- DeMiguel, Garlappi, and Uppal (2009), Rev. Financ. Stud. 22, 1915-1953 — *Optimal versus naive diversification: how inefficient is the 1/N portfolio strategy?*
+- Bun, Bouchaud, and Potters (2018), PRE 98, 052145 — *Overlaps between eigenvectors of correlated random matrices* +
+- Tumminello, Lillo, and Mantegna (2007), EPL 78, 30006 — *Hierarchically nested factor model from multivariate data*
+- Bongiorno & Challet (2021), PLOS ONE 16(1), e0245092 — *Covariance matrix filtering with bootstrapped hierarchies* 
+- Bongiorno, Challet, and Loeper (2021), arXiv:2111.13109 — *Cleaning the covariance matrix of strongly nonstationary systems with time-independent eigenvalues* (Route 3: the transient-mode fix)
+- Bongiorno & Challet (2022), arXiv:2112.07521 — *Non-linear shrinkage of the price return covariance matrix is far from optimal for portfolio optimisation*
+- Bouchaud, Mastromatteo, Potters, and Tikhonov (2022), arXiv:2205.01012 — *Excess out-of-sample risk and fleeting modes*
+- Karami, Benichou, Benzaquen, and Bouchaud (2021), Wilmott 111, 63-73 — *Conditional correlations and principal regression analysis for futures*
 
 Author: Marco Galoppo

@@ -56,6 +56,7 @@ __all__ = [
     "bbp_threshold",
     "spike_lambda",
     "spike_overlap2",
+    "spike_ell_from_lambda",
     # eigen tools
     "eigh_desc",
     "ipr",
@@ -348,6 +349,29 @@ def spike_overlap2(ell, q: float) -> np.ndarray:
 # --------------------------------------------------------------------------- #
 #  Eigen tools
 # --------------------------------------------------------------------------- #
+def spike_ell_from_lambda(lam, q: float) -> np.ndarray:
+    """Invert spike_lambda: given an observed outlier position, the population
+    spike that would have produced it.
+
+        lambda = ell + q*ell/(ell-1)   =>   ell^2 - (1 + lambda - q) ell + lambda = 0
+
+    Take the upper root (the lower one is the mirror solution below the BBP
+    threshold).  Returns nan when the discriminant is negative, i.e., when no
+    spike could have produced that lambda — which is exactly the sub-threshold
+    case: the eigenvalue is bulk, not a shrunken factor.
+
+    Feed it lambda/sigma2 (and the matching q) when working with an effective
+    null, and read the answer as approximate: the formula assumes ONE spike in
+    a white background, so several coexisting factors bias it low.
+    """
+    lam = np.atleast_1d(np.asarray(lam, float))
+    b = 1.0 + lam - q
+    disc = b ** 2 - 4.0 * lam
+    with np.errstate(invalid="ignore"):
+        out = np.where(disc > 0, (b + np.sqrt(np.maximum(disc, 0.0))) / 2.0, np.nan)
+    return out if out.size > 1 else out[0]
+
+
 def eigh_desc(m: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Eigenvalues (descending) and matching eigenvectors of a symmetric m."""
     lam, u = np.linalg.eigh(m)

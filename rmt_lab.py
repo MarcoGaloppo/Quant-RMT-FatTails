@@ -1,13 +1,12 @@
 """
 
-A minimal laboratory for random matrices and what fat tails do to them. My
-first steps in directly adressing quantitative finance.
+A minimal laboratory for random matrices and what fat tails do to them.
 
 We know that the basic estimation problem underneath all of quantitative portfolio 
-construction is: we have ``N`` assets, we got ``T`` observations, and sadly the ratio 
+construction is: we have ``N`` assets, we have ``T`` observations, and sadly the ratio 
 ``q = N/T`` is not small. Interestingly, whilst sample covariance ``E = X X^T / T`` is
-unbiased entry by entry , its *eigenvalues* are systematically distorted. However, here
-Random Matrix Theory (RMT) lands a helping hand! We wish to thank RMT for it and employ it.
+unbiased entry by entry, its *eigenvalues* are systematically distorted. However, here
+Random Matrix Theory (RMT) lends a hand.
 This module provides the three ingredients the notebooks need:
 
 1. **Ensembles.** Wigner and Wishart matrices with exchangeable entry
@@ -18,7 +17,7 @@ This module provides the three ingredients the notebooks need:
    transforms, and the BBP formulas for spiked covariance models (outlier
    position, eigenvector overlap, detectability threshold).
 3. **Estimators.** Namely RMT cleaning schemes we test against each other with a
-   given underlyin truth: eigenvalue clipping (Laloux et al.), Ledoit–Wolf linear
+   given underlying truth: eigenvalue clipping (Laloux et al.), Ledoit–Wolf linear
    shrinkage, the Rotationally Invariant Estimator (Ledoit–Péché and Bun–Bouchaud–
    Potters, nonlinear shrinkage), and the oracle (the best any eigenvector-keeping
    estimator can ever do).
@@ -346,9 +345,6 @@ def spike_overlap2(ell, q: float) -> np.ndarray:
     return out if out.size > 1 else out[0]
 
 
-# --------------------------------------------------------------------------- #
-#  Eigen tools
-# --------------------------------------------------------------------------- #
 def spike_ell_from_lambda(lam, q: float) -> np.ndarray:
     """Invert spike_lambda: given an observed outlier position, the population
     spike that would have produced it.
@@ -372,6 +368,9 @@ def spike_ell_from_lambda(lam, q: float) -> np.ndarray:
     return out if out.size > 1 else out[0]
 
 
+# --------------------------------------------------------------------------- #
+#  Eigen tools
+# --------------------------------------------------------------------------- #
 def eigh_desc(m: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Eigenvalues (descending) and matching eigenvectors of a symmetric m."""
     lam, u = np.linalg.eigh(m)

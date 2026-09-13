@@ -1,7 +1,8 @@
 # Eigenvalues in the wild — a random-matrix laboratory that eventually meets the market
 
-[![tests](https://github.com/MarcoGaloppo/Quant-RMT-FatTails/actions/workflows/ci.yml/badge.svg)](https://github.com/MarcoGaloppo/Quant-RMT-FatTails/actions/workflows/ci.yml) 
+[![tests](https://github.com/MarcoGaloppo/Quant-RMT-FatTails/actions/workflows/ci.yml/badge.svg)](https://github.com/MarcoGaloppo/Quant-RMT-FatTails/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 
 Let us start from the basics. Essentially every portfolio decision eventually runs through a covariance matrix. However, every covariance matrix gets estimated from too little data. **Numquam gaudium** as those wise Latins would say. Indeed, with `N` assets and `T` observations the natural parameter is
 
@@ -158,6 +159,16 @@ The simulation notebook is fully seeded and needs no network. The market noteboo
 prices once via `yfinance` into `data/` (gitignored) and runs offline from the cache
 afterwards; `pyarrow` is worth installing so the cache is parquet rather than a
 pandas-version-locked pickle. `rmt_lab.py` itself needs only numpy.
+
+## On the use of AI
+
+`rmt_lab.py` and both notebooks were written with Claude (Anthropic) used as a pair programmer
+over multiple sessions. I chose the questions, the structure, and the standard of evidence whilst 
+employing Claude to write a good part of the implementation and some of the prose.
+
+Every numerical claim in the notebooks is produced by the code in this repository and was checked
+against its output. Several of Claude's results were wrong and were corrected, among them the interpretation
+of the MP edge under fat-tailed (completely ignored).
 
 ## Main References
 
